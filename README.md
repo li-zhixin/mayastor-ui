@@ -2,195 +2,79 @@
 
 English | [简体中文](./README.zh-CN.md)
 
-`mayastor-ui` is a Kubernetes-oriented UI for managing Mayastor/OpenEBS environments. This repository provides:
+Kubernetes UI for Mayastor / OpenEBS.
 
-- A frontend image published to `GHCR`
-- A `Helm chart` for deploying the UI
-- Integration guidance for clusters that already have OpenEBS/Mayastor installed
+This project deploys the UI only. It expects an existing Mayastor REST API.
 
-This repository does not install OpenEBS/Mayastor itself. It deploys the UI and connects it to an existing REST API.
+## Before You Deploy
 
-## Prerequisites
+Install OpenEBS Replicated Storage / Mayastor first:
 
-Install OpenEBS Replicated Storage / Mayastor before deploying this UI.
+`https://openebs.io/docs/quickstart-guide/installation`
 
-- OpenEBS installation guide:
-  `https://openebs.io/docs/quickstart-guide/installation`
-- Your cluster must already expose a reachable Mayastor REST API service
-
-The recommended setup is to run the UI in the same namespace as `openebs-api-rest`. In that case the default configuration works as-is:
+Default API address:
 
 ```text
 http://openebs-api-rest:8081
 ```
 
-If your REST API is in another namespace, behind an Ingress, or exposed externally, override the Helm value.
+This works when the UI and `openebs-api-rest` are in the same namespace.
 
-## Image Publishing
-
-Default image repository:
-
-```text
-ghcr.io/li-zhixin/mayastor-ui
-```
-
-GitHub Actions builds the project on:
-
-- Pushes to `main`
-- Version tags such as `v0.1.0`
-- Pull requests for build and Helm validation
-
-Default tag strategy:
-
-- `latest`
-- `sha-<commit>`
-- `vX.Y.Z`
-
-## Deploy with Helm
-
-### 1. Clone the repository
+## Deploy
 
 ```bash
 git clone https://github.com/li-zhixin/mayastor-ui.git
 cd mayastor-ui
-```
 
-### 2. Install into the same namespace as OpenEBS API
-
-If `openebs-api-rest` and the UI are in the same namespace, install with the default value:
-
-```bash
 helm upgrade --install mayastor-ui ./chart/mayastor-ui \
   --namespace openebs \
   --create-namespace
 ```
 
-Default API configuration:
+## Access
 
-```yaml
-api:
-  baseUrl: http://openebs-api-rest:8081
+Port-forward:
+
+```bash
+kubectl port-forward -n openebs svc/mayastor-ui 8080:80
 ```
 
-### 3. Expose the service
+Then open:
 
-The chart defaults to a `ClusterIP` service. You can:
+```text
+http://127.0.0.1:8080
+```
 
-- Use `kubectl port-forward`
-- Enable Ingress
-- Switch the service to `LoadBalancer`
+## Common Overrides
 
-Example: enable Ingress
+Use another API address:
 
 ```bash
 helm upgrade --install mayastor-ui ./chart/mayastor-ui \
   --namespace openebs \
-  --set ingress.enabled=true \
-  --set ingress.className=nginx \
-  --set ingress.hosts[0].host=mayastor-ui.example.com
-```
-
-Example: switch to `LoadBalancer`
-
-```bash
-helm upgrade --install mayastor-ui ./chart/mayastor-ui \
-  --namespace openebs \
-  --set service.type=LoadBalancer
-```
-
-## Common Configuration
-
-### Connect to an API in another namespace or outside the cluster
-
-If `openebs-api-rest` is not in the same namespace, use the full service DNS name:
-
-```bash
-helm upgrade --install mayastor-ui ./chart/mayastor-ui \
-  --namespace mayastor-ui \
-  --create-namespace \
   --set api.baseUrl=http://openebs-api-rest.openebs.svc.cluster.local:8081
 ```
 
-If the API is exposed via a domain:
-
-```bash
-helm upgrade --install mayastor-ui ./chart/mayastor-ui \
-  --namespace mayastor-ui \
-  --set api.baseUrl=https://openebs-api.example.com
-```
-
-### Pin an image tag
+Use the published image:
 
 ```bash
 helm upgrade --install mayastor-ui ./chart/mayastor-ui \
   --namespace openebs \
   --set image.repository=ghcr.io/li-zhixin/mayastor-ui \
-  --set image.tag=sha-abcdef1
+  --set image.tag=v0.0.1
 ```
 
-### Deploy from a values file
-
-`values-production.yaml`
-
-```yaml
-image:
-  repository: ghcr.io/li-zhixin/mayastor-ui
-  tag: latest
-
-ingress:
-  enabled: true
-  className: nginx
-  hosts:
-    - host: mayastor-ui.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-
-api:
-  baseUrl: http://openebs-api-rest:8081
-```
-
-Install:
+Enable Ingress:
 
 ```bash
 helm upgrade --install mayastor-ui ./chart/mayastor-ui \
   --namespace openebs \
-  -f values-production.yaml
+  --set ingress.enabled=true \
+  --set ingress.hosts[0].host=mayastor-ui.example.com
 ```
 
-## Chart Contents
+## Notes
 
-The Helm chart lives in:
-
-```text
-chart/mayastor-ui
-```
-
-It includes:
-
-- `Deployment`
-- `Service`
-- `Ingress`
-- `ServiceAccount`
-- Optional `HPA`
-
-## GitHub Actions
-
-Workflow file:
-
-```text
-.github/workflows/release.yml
-```
-
-It runs:
-
-1. `npm ci`
-2. `npm run lint`
-3. `npm run build`
-4. `helm lint chart/mayastor-ui`
-5. `helm template mayastor-ui chart/mayastor-ui`
-6. GHCR image publishing on `main` and version tags
-
-## Local Development
-
-Local development and image verification are documented in [dev.md](./dev.md).
+- Default image: `ghcr.io/li-zhixin/mayastor-ui`
+- Helm chart: `chart/mayastor-ui`
+- Local development: [dev.md](./dev.md)
