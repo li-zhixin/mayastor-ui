@@ -4,7 +4,7 @@
 	@envConfig path_regexp envConfig ^(.*/)?env-config\.js$
 	header @envConfig Cache-Control "no-store"
 
-	handle_path /v0/* {
+	handle /v0/* {
 		reverse_proxy http://openebs-api-rest:8081
 	}
 
