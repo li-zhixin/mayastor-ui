@@ -14,6 +14,10 @@ function formatBytes(bytes: number): string {
   return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${units[i]}`;
 }
 
+function getNexusChildren(nexus: Nexus) {
+  return Array.isArray(nexus.children) ? nexus.children : [];
+}
+
 export default function NexusDetail() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
@@ -65,7 +69,7 @@ export default function NexusDetail() {
 
       <Card title={t('nexuses.childrenTitle')} style={{ marginTop: 16 }}>
         <Table
-          dataSource={nexus.children}
+          dataSource={getNexusChildren(nexus)}
           rowKey="uri"
           pagination={false}
           columns={[

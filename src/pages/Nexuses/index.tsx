@@ -13,6 +13,10 @@ function formatBytes(bytes: number): string {
   return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${units[i]}`;
 }
 
+function getNexusChildren(record: Nexus) {
+  return Array.isArray(record.children) ? record.children : [];
+}
+
 export default function NexusesPage() {
   const { t } = useTranslation();
   const [nexuses, setNexuses] = useState<Nexus[]>([]);
@@ -36,6 +40,7 @@ export default function NexusesPage() {
       <Table
         dataSource={nexuses}
         rowKey="uuid"
+        childrenColumnName="__children"
         onRow={(record) => ({
           onClick: () => navigate(`/nexuses/${record.uuid}`),
           style: { cursor: 'pointer' },
@@ -59,8 +64,9 @@ export default function NexusesPage() {
             title: t('nexuses.columns.children'),
             key: 'children',
             render: (_: unknown, record: Nexus) => {
-              const online = record.children.filter((c) => c.state === 'Online').length;
-              return `${online} / ${record.children.length}`;
+              const children = getNexusChildren(record);
+              const online = children.filter((c) => c.state === 'Online').length;
+              return `${online} / ${children.length}`;
             },
           },
           {
