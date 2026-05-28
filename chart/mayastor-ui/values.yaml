@@ -64,3 +64,4 @@ affinity: {}
 
 api:
   baseUrl: http://openebs-api-rest:8081
+  basePath: /

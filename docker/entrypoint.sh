@@ -2,8 +2,10 @@
 set -eu
 
 API_BASE_URL="${API_BASE_URL:-http://openebs-api-rest:8081}"
+BASE_PATH="${BASE_PATH:-/}"
 
-sed "s|__API_BASE_URL__|${API_BASE_URL}|g" \
+sed -e "s|__API_BASE_URL__|${API_BASE_URL}|g" \
+  -e "s|__BASE_PATH__|${BASE_PATH}|g" \
   /usr/share/caddy/env-config.js.template \
   > /usr/share/caddy/env-config.js
 

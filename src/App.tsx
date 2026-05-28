@@ -13,10 +13,12 @@ import VolumeDetail from './pages/Volumes/VolumeDetail';
 import ReplicasPage from './pages/Replicas';
 import NexusesPage from './pages/Nexuses';
 import NexusDetail from './pages/Nexuses/NexusDetail';
+import { getBasePath } from './config';
 
 export default function App() {
   const { i18n, t } = useTranslation();
   const antdLocale = i18n.resolvedLanguage === 'zh-CN' ? zhCN : enUS;
+  const basePath = getBasePath();
 
   useEffect(() => {
     document.title = t('common.appTitle');
@@ -24,7 +26,7 @@ export default function App() {
 
   return (
     <ConfigProvider locale={antdLocale}>
-      <BrowserRouter>
+      <BrowserRouter basename={basePath}>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
