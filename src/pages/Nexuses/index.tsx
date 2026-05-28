@@ -17,6 +17,21 @@ function getNexusChildren(record: Nexus) {
   return Array.isArray(record.children) ? record.children : [];
 }
 
+function formatProtocol(protocol: string): string {
+  switch (protocol.toLowerCase()) {
+    case 'nvmf':
+      return 'NVMe-oF';
+    case 'iscsi':
+      return 'iSCSI';
+    case 'nbd':
+      return 'NBD';
+    case 'none':
+      return 'None';
+    default:
+      return protocol;
+  }
+}
+
 export default function NexusesPage() {
   const { t } = useTranslation();
   const [nexuses, setNexuses] = useState<Nexus[]>([]);
@@ -50,7 +65,7 @@ export default function NexusesPage() {
           { title: t('nexuses.columns.node'), dataIndex: 'node', key: 'node' },
           {
             title: t('nexuses.columns.status'),
-            dataIndex: 'status',
+            dataIndex: 'state',
             key: 'status',
             render: (s: string) => <StatusBadge status={s} />,
           },
@@ -76,9 +91,9 @@ export default function NexusesPage() {
           },
           {
             title: t('nexuses.columns.protocol'),
-            dataIndex: 'share',
-            key: 'share',
-            render: (s: string) => (s === 'None' ? t('common.shared.notShared') : s),
+            dataIndex: 'protocol',
+            key: 'protocol',
+            render: (protocol: string) => formatProtocol(protocol),
           },
         ]}
       />

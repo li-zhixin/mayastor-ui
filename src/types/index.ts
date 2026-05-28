@@ -99,14 +99,13 @@ export type ChildState = 'Online' | 'Degraded' | 'Faulted' | 'Unknown';
 
 export interface Nexus {
   node: NodeId;
-  name: string;
   uuid: NexusId;
   size: number;
-  status: NexusStatus;
+  state: NexusStatus;
   children: NexusChild[];
   deviceUri: string;
   rebuilds: number;
-  share: Protocol;
+  protocol: string;
 }
 
 export interface CreateNexusBody {

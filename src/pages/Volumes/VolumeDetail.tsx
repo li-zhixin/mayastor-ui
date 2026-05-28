@@ -102,7 +102,7 @@ export default function VolumeDetail() {
               <Descriptions.Item label={t('volumes.fields.nexusNode')}>{state.target.node}</Descriptions.Item>
               <Descriptions.Item label={t('volumes.fields.deviceUri')}>{state.target.deviceUri || '-'}</Descriptions.Item>
               <Descriptions.Item label={t('volumes.fields.nexusStatus')}>
-                <StatusBadge status={state.target.status} />
+                <StatusBadge status={state.target.state} />
               </Descriptions.Item>
               <Descriptions.Item label={t('volumes.fields.rebuilds')}>{state.target.rebuilds}</Descriptions.Item>
             </>

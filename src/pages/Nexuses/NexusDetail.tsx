@@ -18,6 +18,21 @@ function getNexusChildren(nexus: Nexus) {
   return Array.isArray(nexus.children) ? nexus.children : [];
 }
 
+function formatProtocol(protocol: string): string {
+  switch (protocol.toLowerCase()) {
+    case 'nvmf':
+      return 'NVMe-oF';
+    case 'iscsi':
+      return 'iSCSI';
+    case 'nbd':
+      return 'NBD';
+    case 'none':
+      return 'None';
+    default:
+      return protocol;
+  }
+}
+
 export default function NexusDetail() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
@@ -58,12 +73,11 @@ export default function NexusDetail() {
       <Card title={<span>{t('nexuses.detailTitle')} <Typography.Text copyable>{nexus.uuid}</Typography.Text></span>}>
         <Descriptions column={2} bordered size="small">
           <Descriptions.Item label={t('nexuses.fields.node')}>{nexus.node}</Descriptions.Item>
-          <Descriptions.Item label={t('nexuses.fields.name')}>{nexus.name}</Descriptions.Item>
-          <Descriptions.Item label={t('nexuses.fields.status')}><StatusBadge status={nexus.status} /></Descriptions.Item>
+          <Descriptions.Item label={t('nexuses.fields.status')}><StatusBadge status={nexus.state} /></Descriptions.Item>
           <Descriptions.Item label={t('nexuses.fields.size')}>{formatBytes(nexus.size)}</Descriptions.Item>
           <Descriptions.Item label={t('nexuses.fields.deviceUri')}>{nexus.deviceUri || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('nexuses.fields.rebuilds')}>{nexus.rebuilds}</Descriptions.Item>
-          <Descriptions.Item label={t('nexuses.fields.share')}>{nexus.share === 'None' ? t('common.shared.notShared') : nexus.share}</Descriptions.Item>
+          <Descriptions.Item label={t('nexuses.fields.share')}>{formatProtocol(nexus.protocol)}</Descriptions.Item>
         </Descriptions>
       </Card>
 
