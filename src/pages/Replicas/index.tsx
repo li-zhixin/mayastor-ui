@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Table, Spin, Typography } from 'antd';
 import { getReplicas } from '../../api';
 import { Replica } from '../../types';
-import StatusBadge from '../../components/StatusBadge';
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';

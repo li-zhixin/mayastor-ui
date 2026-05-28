@@ -1,0 +1,3 @@
+window.__MAYASTOR_UI_CONFIG__ = {
+  apiBaseUrl: "__API_BASE_URL__",
+};

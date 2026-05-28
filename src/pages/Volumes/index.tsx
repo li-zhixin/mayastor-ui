@@ -21,15 +21,37 @@ export default function VolumesPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const fetchVolumes = () => {
-    setLoading(true);
+  useEffect(() => {
+    let cancelled = false;
     getVolumes()
-      .then((data) => setVolumes(data))
+      .then((data) => {
+        if (!cancelled) {
+          setVolumes(data);
+        }
+      })
       .catch(() => {})
-      .finally(() => setLoading(false));
-  };
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
 
-  useEffect(() => { fetchVolumes(); }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const fetchVolumes = async () => {
+    setLoading(true);
+    try {
+      const data = await getVolumes();
+      setVolumes(data);
+    } catch {
+      setVolumes([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCreate = async () => {
     try {
@@ -44,7 +66,7 @@ export default function VolumesPage() {
       await createVolume(body);
       setCreateOpen(false);
       form.resetFields();
-      fetchVolumes();
+      await fetchVolumes();
     } catch {
       // validation errors are handled by antd
     } finally {
@@ -61,7 +83,7 @@ export default function VolumesPage() {
       okButtonProps: { danger: true },
       onOk: async () => {
         await deleteVolume(uuid);
-        fetchVolumes();
+        await fetchVolumes();
       },
     });
   };

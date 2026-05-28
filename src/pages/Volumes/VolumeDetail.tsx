@@ -17,29 +17,53 @@ export default function VolumeDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [volume, setVolume] = useState<Volume | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(id));
 
-  const fetchVolume = () => {
+  useEffect(() => {
     if (!id) return;
-    setLoading(true);
-    getVolume(id)
-      .then(setVolume)
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  };
 
-  useEffect(() => { fetchVolume(); }, [id]);
+    let cancelled = false;
+    getVolume(id)
+      .then((data) => {
+        if (cancelled) return;
+        setVolume(data);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  const fetchVolume = async () => {
+    if (!id) return;
+
+    setLoading(true);
+    try {
+      const data = await getVolume(id);
+      setVolume(data);
+    } catch {
+      setVolume(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePublish = async () => {
     if (!id) return;
     await publishVolume(id);
-    fetchVolume();
+    await fetchVolume();
   };
 
   const handleUnpublish = async () => {
     if (!id) return;
     await unpublishVolume(id);
-    fetchVolume();
+    await fetchVolume();
   };
 
   const handleDelete = async () => {

@@ -17,15 +17,27 @@ export default function NexusDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [nexus, setNexus] = useState<Nexus | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(id));
 
   useEffect(() => {
     if (!id) return;
-    setLoading(true);
+
+    let cancelled = false;
     getNexus(id)
-      .then(setNexus)
+      .then((data) => {
+        if (cancelled) return;
+        setNexus(data);
+      })
       .catch(() => {})
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   if (loading) return <div style={{ textAlign: 'center', paddingTop: 80 }}><Spin size="large" /></div>;
