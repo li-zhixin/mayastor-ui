@@ -19,9 +19,15 @@ function normalizeBasePath(value: string | undefined): string {
 }
 
 export function getApiBaseUrl(): string {
-  return normalizeBaseUrl(
+  const explicitBaseUrl = normalizeBaseUrl(
     window.__MAYASTOR_UI_CONFIG__?.apiBaseUrl || import.meta.env.VITE_API_BASE_URL,
   );
+  if (explicitBaseUrl) {
+    return explicitBaseUrl;
+  }
+
+  const basePath = getBasePath();
+  return basePath === '/' ? '' : basePath;
 }
 
 export function getBasePath(): string {
