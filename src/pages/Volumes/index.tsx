@@ -124,7 +124,7 @@ export default function VolumesPage() {
           },
           {
             title: t('volumes.columns.replicas'),
-            dataIndex: ['spec', 'replicas'],
+            dataIndex: ['spec', 'num_replicas'],
             key: 'replicas',
           },
           {

@@ -3,6 +3,7 @@ import { Table, Spin, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { getReplicas } from '../../api';
 import { Replica } from '../../types';
+import StatusBadge from '../../components/StatusBadge';
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
@@ -27,6 +28,21 @@ export default function ReplicasPage() {
 
   if (loading) return <div style={{ textAlign: 'center', paddingTop: 80 }}><Spin size="large" /></div>;
 
+  const formatProtocol = (protocol: string) => {
+    switch (protocol) {
+      case 'none':
+        return t('common.shared.notShared');
+      case 'nvmf':
+        return 'NVMe-oF';
+      case 'iscsi':
+        return 'iSCSI';
+      case 'nbd':
+        return 'NBD';
+      default:
+        return protocol;
+    }
+  };
+
   return (
     <div>
       <Typography.Title level={4}>{t('replicas.title')}</Typography.Title>
@@ -37,6 +53,12 @@ export default function ReplicasPage() {
           { title: t('common.labels.uuid'), dataIndex: 'uuid', key: 'uuid', width: 280 },
           { title: t('replicas.columns.node'), dataIndex: 'node', key: 'node' },
           { title: t('replicas.columns.pool'), dataIndex: 'pool', key: 'pool' },
+          {
+            title: t('replicas.columns.status'),
+            dataIndex: 'state',
+            key: 'state',
+            render: (s: string) => <StatusBadge status={s} />,
+          },
           {
             title: t('replicas.columns.size'),
             dataIndex: 'size',
@@ -53,7 +75,7 @@ export default function ReplicasPage() {
             title: t('replicas.columns.share'),
             dataIndex: 'share',
             key: 'share',
-            render: (s: string) => (s === 'None' ? t('common.shared.notShared') : s),
+            render: (s: string) => formatProtocol(s),
           },
           { title: t('replicas.columns.uri'), dataIndex: 'uri', key: 'uri', ellipsis: true },
         ]}

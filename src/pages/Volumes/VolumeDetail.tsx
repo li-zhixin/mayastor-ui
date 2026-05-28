@@ -91,7 +91,7 @@ export default function VolumeDetail() {
             <StatusBadge status={state.status} />
           </Descriptions.Item>
           <Descriptions.Item label={t('volumes.fields.size')}>{formatBytes(state.size)}</Descriptions.Item>
-          <Descriptions.Item label={t('volumes.fields.desiredReplicas')}>{spec.replicas}</Descriptions.Item>
+          <Descriptions.Item label={t('volumes.fields.desiredReplicas')}>{spec.num_replicas}</Descriptions.Item>
           <Descriptions.Item label={t('volumes.fields.publishStatus')}>
             {state.target
               ? <StatusBadge status="Online" text={t('volumes.values.published')} />
@@ -137,15 +137,15 @@ export default function VolumeDetail() {
         </Card>
       )}
 
-      {state.replicaTopology && Object.keys(state.replicaTopology).length > 0 && (
+      {state.replica_topology && Object.keys(state.replica_topology).length > 0 && (
         <Card title={t('volumes.replicaTopologyTitle')} style={{ marginTop: 16 }}>
-          {Object.entries(state.replicaTopology).map(([replicaId, topology]) => (
+          {Object.entries(state.replica_topology).map(([replicaId, topology]) => (
             <Descriptions key={replicaId} column={3} bordered size="small" style={{ marginBottom: 8 }}>
               <Descriptions.Item label={t('volumes.fields.replicaId')}>{replicaId}</Descriptions.Item>
               <Descriptions.Item label={t('volumes.fields.node')}>{topology.node}</Descriptions.Item>
               <Descriptions.Item label={t('volumes.fields.pool')}>{topology.pool}</Descriptions.Item>
               <Descriptions.Item label={t('volumes.fields.status')}>
-                <StatusBadge status={topology.status} />
+                <StatusBadge status={topology.state} />
               </Descriptions.Item>
             </Descriptions>
           ))}
