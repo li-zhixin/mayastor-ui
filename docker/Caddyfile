@@ -1,7 +1,7 @@
 :80 {
 	root * /usr/share/caddy
 
-	@envConfig path /env-config.js
+	@envConfig path_regexp envConfig ^(.*/)?env-config\.js$
 	header @envConfig Cache-Control "no-store"
 
 	try_files {path} /index.html
