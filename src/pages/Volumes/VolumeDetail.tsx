@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Descriptions, Spin, Typography, Button, Space } from 'antd';
+import { Card, Descriptions, Spin, Typography, Button, Space, Modal, Form, Select, Input, Checkbox } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { getVolume, publishVolume, unpublishVolume, deleteVolume } from '../../api';
-import { Volume } from '../../types';
+import { PublishVolumeBody, Volume } from '../../types';
 import StatusBadge from '../../components/StatusBadge';
 
 function formatBytes(bytes: number): string {
@@ -20,6 +20,9 @@ export default function VolumeDetail() {
   const navigate = useNavigate();
   const [volume, setVolume] = useState<Volume | null>(null);
   const [loading, setLoading] = useState(Boolean(id));
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishForm] = Form.useForm();
 
   useEffect(() => {
     if (!id) return;
@@ -58,8 +61,22 @@ export default function VolumeDetail() {
 
   const handlePublish = async () => {
     if (!id) return;
-    await publishVolume(id, { protocol: 'nvmf' });
-    await fetchVolume();
+    try {
+      const values = await publishForm.validateFields();
+      setPublishing(true);
+      const body: PublishVolumeBody = {
+        protocol: values.protocol,
+        frontend_node: values.frontendNode || undefined,
+        republish: values.republish,
+        reuse_existing: values.reuseExisting,
+      };
+      await publishVolume(id, body);
+      setPublishOpen(false);
+      publishForm.resetFields();
+      await fetchVolume();
+    } finally {
+      setPublishing(false);
+    }
   };
 
   const handleUnpublish = async () => {
@@ -112,7 +129,7 @@ export default function VolumeDetail() {
         <div style={{ marginTop: 16 }}>
           <Space>
             {!state.target ? (
-              <Button type="primary" onClick={handlePublish}>{t('volumes.actions.publish')}</Button>
+              <Button type="primary" onClick={() => setPublishOpen(true)}>{t('volumes.actions.publish')}</Button>
             ) : (
               <Button onClick={handleUnpublish}>{t('volumes.actions.unpublish')}</Button>
             )}
@@ -151,6 +168,44 @@ export default function VolumeDetail() {
           ))}
         </Card>
       )}
+
+      <Modal
+        title={t('volumes.modal.publishTitle')}
+        open={publishOpen}
+        onOk={handlePublish}
+        onCancel={() => { setPublishOpen(false); publishForm.resetFields(); }}
+        confirmLoading={publishing}
+        okText={t('volumes.modal.publish')}
+        cancelText={t('volumes.modal.cancel')}
+      >
+        <Form
+          form={publishForm}
+          layout="vertical"
+          initialValues={{ protocol: 'nvmf', republish: false, reuseExisting: true }}
+        >
+          <Form.Item
+            name="protocol"
+            label={t('volumes.form.protocol')}
+            rules={[{ required: true, message: t('volumes.form.validation.protocolRequired') }]}
+          >
+            <Select
+              options={[
+                { label: 'NVMe-oF', value: 'nvmf' },
+                { label: 'iSCSI', value: 'iscsi' },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item name="frontendNode" label={t('volumes.form.frontendNode')}>
+            <Input placeholder={t('volumes.form.frontendNodePlaceholder')} />
+          </Form.Item>
+          <Form.Item name="republish" valuePropName="checked">
+            <Checkbox>{t('volumes.form.republish')}</Checkbox>
+          </Form.Item>
+          <Form.Item name="reuseExisting" valuePropName="checked">
+            <Checkbox>{t('volumes.form.reuseExisting')}</Checkbox>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

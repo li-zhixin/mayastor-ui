@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Table, Spin, Typography, Button, Space, Modal, Form, InputNumber, Input } from 'antd';
+import { Table, Spin, Typography, Button, Space, Modal, Form, InputNumber, Input, Checkbox, Collapse } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -67,8 +67,10 @@ export default function VolumesPage() {
         size: values.size * 1024 * 1024 * 1024, // GiB -> bytes
         replicas: values.replicas,
         policy: {},
-        thin: false,
-        encrypted: false,
+        thin: Boolean(values.thin),
+        encrypted: Boolean(values.encrypted),
+        max_snapshots: values.maxSnapshots,
+        cluster_size: values.clusterSize,
         labels: values.labels ? { description: values.labels } : undefined,
       };
       await createVolume(generateUuid(), body);
@@ -193,6 +195,30 @@ export default function VolumesPage() {
           <Form.Item name="labels" label={t('volumes.form.labels')}>
             <Input placeholder={t('volumes.form.labelsPlaceholder')} />
           </Form.Item>
+          <Collapse
+            items={[
+              {
+                key: 'advanced',
+                label: t('volumes.form.advanced'),
+                children: (
+                  <>
+                    <Form.Item name="thin" valuePropName="checked">
+                      <Checkbox>{t('volumes.form.thin')}</Checkbox>
+                    </Form.Item>
+                    <Form.Item name="encrypted" valuePropName="checked">
+                      <Checkbox>{t('volumes.form.encrypted')}</Checkbox>
+                    </Form.Item>
+                    <Form.Item name="maxSnapshots" label={t('volumes.form.maxSnapshots')}>
+                      <InputNumber min={1} style={{ width: '100%' }} />
+                    </Form.Item>
+                    <Form.Item name="clusterSize" label={t('volumes.form.clusterSize')}>
+                      <InputNumber min={1} style={{ width: '100%' }} />
+                    </Form.Item>
+                  </>
+                ),
+              },
+            ]}
+          />
         </Form>
       </Modal>
     </div>
