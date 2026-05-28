@@ -1,13 +1,15 @@
 :80 {
 	root * /usr/share/caddy
 
-	@envConfig path_regexp envConfig ^(.*/)?env-config\.js$
-	header @envConfig Cache-Control "no-store"
+	route {
+		@envConfig path_regexp envConfig ^(.*/)?env-config\.js$
+		header @envConfig Cache-Control "no-store"
 
-	handle /v0/* {
-		reverse_proxy http://openebs-api-rest:8081
+		handle /v0/* {
+			reverse_proxy http://openebs-api-rest:8081
+		}
+
+		try_files {path} /index.html
+		file_server
 	}
-
-	try_files {path} /index.html
-	file_server
 }
