@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
+import enUS from 'antd/locale/en_US';
 import zhCN from 'antd/locale/zh_CN';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import NodesPage from './pages/Nodes';
@@ -12,8 +15,15 @@ import NexusesPage from './pages/Nexuses';
 import NexusDetail from './pages/Nexuses/NexusDetail';
 
 export default function App() {
+  const { i18n, t } = useTranslation();
+  const antdLocale = i18n.resolvedLanguage === 'zh-CN' ? zhCN : enUS;
+
+  useEffect(() => {
+    document.title = t('common.appTitle');
+  }, [t, i18n.resolvedLanguage]);
+
   return (
-    <ConfigProvider locale={zhCN}>
+    <ConfigProvider locale={antdLocale}>
       <BrowserRouter>
         <Routes>
           <Route element={<Layout />}>

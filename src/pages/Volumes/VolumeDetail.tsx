@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Descriptions, Spin, Typography, Button, Space } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import { getVolume, publishVolume, unpublishVolume, deleteVolume } from '../../api';
 import { Volume } from '../../types';
 import StatusBadge from '../../components/StatusBadge';
@@ -14,6 +15,7 @@ function formatBytes(bytes: number): string {
 }
 
 export default function VolumeDetail() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [volume, setVolume] = useState<Volume | null>(null);
@@ -73,34 +75,36 @@ export default function VolumeDetail() {
   };
 
   if (loading) return <div style={{ textAlign: 'center', paddingTop: 80 }}><Spin size="large" /></div>;
-  if (!volume) return <Typography.Text type="danger">卷未找到</Typography.Text>;
+  if (!volume) return <Typography.Text type="danger">{t('volumes.notFound')}</Typography.Text>;
 
   const { spec, state } = volume;
 
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/volumes')}>返回</Button>
+        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/volumes')}>{t('common.back')}</Button>
       </Space>
 
-      <Card title={<span>卷详情 <Typography.Text copyable>{spec.uuid}</Typography.Text></span>}>
+      <Card title={<span>{t('volumes.detailTitle')} <Typography.Text copyable>{spec.uuid}</Typography.Text></span>}>
         <Descriptions column={2} bordered size="small">
-          <Descriptions.Item label="状态">
+          <Descriptions.Item label={t('volumes.fields.status')}>
             <StatusBadge status={state.status} />
           </Descriptions.Item>
-          <Descriptions.Item label="大小">{formatBytes(state.size)}</Descriptions.Item>
-          <Descriptions.Item label="期望副本数">{spec.replicas}</Descriptions.Item>
-          <Descriptions.Item label="发布状态">
-            {state.target ? <StatusBadge status="Online" text="已发布" /> : <StatusBadge status="Unknown" text="未发布" />}
+          <Descriptions.Item label={t('volumes.fields.size')}>{formatBytes(state.size)}</Descriptions.Item>
+          <Descriptions.Item label={t('volumes.fields.desiredReplicas')}>{spec.replicas}</Descriptions.Item>
+          <Descriptions.Item label={t('volumes.fields.publishStatus')}>
+            {state.target
+              ? <StatusBadge status="Online" text={t('volumes.values.published')} />
+              : <StatusBadge status="Unknown" text={t('volumes.values.unpublished')} />}
           </Descriptions.Item>
           {state.target && (
             <>
-              <Descriptions.Item label="Nexus 节点">{state.target.node}</Descriptions.Item>
-              <Descriptions.Item label="设备 URI">{state.target.deviceUri || '-'}</Descriptions.Item>
-              <Descriptions.Item label="Nexus 状态">
+              <Descriptions.Item label={t('volumes.fields.nexusNode')}>{state.target.node}</Descriptions.Item>
+              <Descriptions.Item label={t('volumes.fields.deviceUri')}>{state.target.deviceUri || '-'}</Descriptions.Item>
+              <Descriptions.Item label={t('volumes.fields.nexusStatus')}>
                 <StatusBadge status={state.target.status} />
               </Descriptions.Item>
-              <Descriptions.Item label="重建任务">{state.target.rebuilds}</Descriptions.Item>
+              <Descriptions.Item label={t('volumes.fields.rebuilds')}>{state.target.rebuilds}</Descriptions.Item>
             </>
           )}
         </Descriptions>
@@ -108,25 +112,25 @@ export default function VolumeDetail() {
         <div style={{ marginTop: 16 }}>
           <Space>
             {!state.target ? (
-              <Button type="primary" onClick={handlePublish}>发布</Button>
+              <Button type="primary" onClick={handlePublish}>{t('volumes.actions.publish')}</Button>
             ) : (
-              <Button onClick={handleUnpublish}>取消发布</Button>
+              <Button onClick={handleUnpublish}>{t('volumes.actions.unpublish')}</Button>
             )}
-            <Button danger onClick={handleDelete}>删除卷</Button>
+            <Button danger onClick={handleDelete}>{t('volumes.actions.delete')}</Button>
           </Space>
         </div>
       </Card>
 
       {state.target && state.target.children && state.target.children.length > 0 && (
-        <Card title="Nexus 子设备" style={{ marginTop: 16 }}>
+        <Card title={t('volumes.nexusChildrenTitle')} style={{ marginTop: 16 }}>
           {state.target.children.map((child, i) => (
             <Descriptions key={i} column={2} bordered size="small" style={{ marginBottom: 8 }}>
-              <Descriptions.Item label="URI">{child.uri}</Descriptions.Item>
-              <Descriptions.Item label="状态">
+              <Descriptions.Item label={t('common.labels.uri')}>{child.uri}</Descriptions.Item>
+              <Descriptions.Item label={t('volumes.fields.childStatus')}>
                 <StatusBadge status={child.state} />
               </Descriptions.Item>
               {child.rebuildProgress !== undefined && (
-                <Descriptions.Item label="重建进度">{child.rebuildProgress}%</Descriptions.Item>
+                <Descriptions.Item label={t('volumes.fields.rebuildProgress')}>{child.rebuildProgress}%</Descriptions.Item>
               )}
             </Descriptions>
           ))}
@@ -134,13 +138,13 @@ export default function VolumeDetail() {
       )}
 
       {state.replicaTopology && Object.keys(state.replicaTopology).length > 0 && (
-        <Card title="副本拓扑" style={{ marginTop: 16 }}>
+        <Card title={t('volumes.replicaTopologyTitle')} style={{ marginTop: 16 }}>
           {Object.entries(state.replicaTopology).map(([replicaId, topology]) => (
             <Descriptions key={replicaId} column={3} bordered size="small" style={{ marginBottom: 8 }}>
-              <Descriptions.Item label="副本 ID">{replicaId}</Descriptions.Item>
-              <Descriptions.Item label="节点">{topology.node}</Descriptions.Item>
-              <Descriptions.Item label="存储池">{topology.pool}</Descriptions.Item>
-              <Descriptions.Item label="状态">
+              <Descriptions.Item label={t('volumes.fields.replicaId')}>{replicaId}</Descriptions.Item>
+              <Descriptions.Item label={t('volumes.fields.node')}>{topology.node}</Descriptions.Item>
+              <Descriptions.Item label={t('volumes.fields.pool')}>{topology.pool}</Descriptions.Item>
+              <Descriptions.Item label={t('volumes.fields.status')}>
                 <StatusBadge status={topology.status} />
               </Descriptions.Item>
             </Descriptions>

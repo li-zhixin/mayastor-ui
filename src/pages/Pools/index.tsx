@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, Spin, Typography, Progress } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { getPools } from '../../api';
 import { Pool } from '../../types';
 import StatusBadge from '../../components/StatusBadge';
@@ -12,6 +13,7 @@ function formatBytes(bytes: number): string {
 }
 
 export default function PoolsPage() {
+  const { t } = useTranslation();
   const [pools, setPools] = useState<Pool[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,33 +30,33 @@ export default function PoolsPage() {
 
   return (
     <div>
-      <Typography.Title level={4}>存储池</Typography.Title>
+      <Typography.Title level={4}>{t('pools.title')}</Typography.Title>
       <Table
         dataSource={pools}
         rowKey={(r) => r.id}
         columns={[
-          { title: 'ID', dataIndex: 'id', key: 'id' },
-          { title: '节点', dataIndex: ['state', 'node'], key: 'node' },
+          { title: t('common.labels.id'), dataIndex: 'id', key: 'id' },
+          { title: t('pools.columns.node'), dataIndex: ['state', 'node'], key: 'node' },
           {
-            title: '状态',
+            title: t('pools.columns.status'),
             dataIndex: ['state', 'status'],
             key: 'status',
             render: (s: string) => <StatusBadge status={s} />,
           },
           {
-            title: '容量',
+            title: t('pools.columns.capacity'),
             dataIndex: ['state', 'capacity'],
             key: 'capacity',
             render: (v: number) => formatBytes(v || 0),
           },
           {
-            title: '已用',
+            title: t('pools.columns.used'),
             dataIndex: ['state', 'used'],
             key: 'used',
             render: (v: number) => formatBytes(v || 0),
           },
           {
-            title: '使用率',
+            title: t('pools.columns.usage'),
             key: 'usage',
             render: (_: unknown, record: Pool) => {
               const cap = record.state?.capacity || 0;
@@ -64,7 +66,7 @@ export default function PoolsPage() {
             },
           },
           {
-            title: '磁盘',
+            title: t('pools.columns.disks'),
             dataIndex: ['state', 'disks'],
             key: 'disks',
             render: (disks: string[]) => disks?.join(', ') || '-',

@@ -9,24 +9,26 @@ import {
   ShareAltOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../LanguageSwitcher';
 
 const { Header, Sider, Content } = AntLayout;
-
-const menuItems = [
-  { key: '/dashboard', icon: <DashboardOutlined />, label: '概览' },
-  { key: '/nodes', icon: <ClusterOutlined />, label: '节点' },
-  { key: '/pools', icon: <DatabaseOutlined />, label: '存储池' },
-  { key: '/volumes', icon: <HddOutlined />, label: '卷' },
-  { key: '/replicas', icon: <CopyOutlined />, label: '副本' },
-  { key: '/nexuses', icon: <ShareAltOutlined />, label: 'Nexus' },
-];
 
 export default function Layout() {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const selectedKey = '/' + location.pathname.split('/')[1];
+  const menuItems = [
+    { key: '/dashboard', icon: <DashboardOutlined />, label: t('layout.menu.dashboard') },
+    { key: '/nodes', icon: <ClusterOutlined />, label: t('layout.menu.nodes') },
+    { key: '/pools', icon: <DatabaseOutlined />, label: t('layout.menu.pools') },
+    { key: '/volumes', icon: <HddOutlined />, label: t('layout.menu.volumes') },
+    { key: '/replicas', icon: <CopyOutlined />, label: t('layout.menu.replicas') },
+    { key: '/nexuses', icon: <ShareAltOutlined />, label: t('layout.menu.nexuses') },
+  ];
 
   return (
     <AntLayout style={{ minHeight: '100vh' }}>
@@ -41,7 +43,7 @@ export default function Layout() {
             level={4}
             style={{ color: '#fff', margin: 0, fontSize: collapsed ? 14 : 16 }}
           >
-            {collapsed ? 'M' : 'Mayastor'}
+            {collapsed ? t('layout.collapsedBrand') : t('layout.brand')}
           </Typography.Title>
         </div>
         <Menu
@@ -60,11 +62,13 @@ export default function Layout() {
             borderBottom: '1px solid #f0f0f0',
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
           <Typography.Text type="secondary" style={{ fontSize: 14 }}>
-            Mayastor 存储集群管理
+            {t('layout.title')}
           </Typography.Text>
+          <LanguageSwitcher />
         </Header>
         <Content style={{ margin: 16 }}>
           <Outlet />

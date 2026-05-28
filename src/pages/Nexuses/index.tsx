@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, Spin, Typography } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { getNexuses } from '../../api';
 import { Nexus } from '../../types';
 import StatusBadge from '../../components/StatusBadge';
@@ -13,6 +14,7 @@ function formatBytes(bytes: number): string {
 }
 
 export default function NexusesPage() {
+  const { t } = useTranslation();
   const [nexuses, setNexuses] = useState<Nexus[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -30,7 +32,7 @@ export default function NexusesPage() {
 
   return (
     <div>
-      <Typography.Title level={4}>Nexus</Typography.Title>
+      <Typography.Title level={4}>{t('nexuses.title')}</Typography.Title>
       <Table
         dataSource={nexuses}
         rowKey="uuid"
@@ -39,22 +41,22 @@ export default function NexusesPage() {
           style: { cursor: 'pointer' },
         })}
         columns={[
-          { title: 'UUID', dataIndex: 'uuid', key: 'uuid', width: 280 },
-          { title: '节点', dataIndex: 'node', key: 'node' },
+          { title: t('common.labels.uuid'), dataIndex: 'uuid', key: 'uuid', width: 280 },
+          { title: t('nexuses.columns.node'), dataIndex: 'node', key: 'node' },
           {
-            title: '状态',
+            title: t('nexuses.columns.status'),
             dataIndex: 'status',
             key: 'status',
             render: (s: string) => <StatusBadge status={s} />,
           },
           {
-            title: '大小',
+            title: t('nexuses.columns.size'),
             dataIndex: 'size',
             key: 'size',
             render: (v: number) => formatBytes(v || 0),
           },
           {
-            title: '子设备',
+            title: t('nexuses.columns.children'),
             key: 'children',
             render: (_: unknown, record: Nexus) => {
               const online = record.children.filter((c) => c.state === 'Online').length;
@@ -62,15 +64,15 @@ export default function NexusesPage() {
             },
           },
           {
-            title: '重建',
+            title: t('nexuses.columns.rebuilds'),
             dataIndex: 'rebuilds',
             key: 'rebuilds',
           },
           {
-            title: '协议',
+            title: t('nexuses.columns.protocol'),
             dataIndex: 'share',
             key: 'share',
-            render: (s: string) => (s === 'None' ? '未共享' : s),
+            render: (s: string) => (s === 'None' ? t('common.shared.notShared') : s),
           },
         ]}
       />

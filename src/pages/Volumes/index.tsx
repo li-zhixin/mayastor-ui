@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Table, Spin, Typography, Button, Space, Modal, Form, InputNumber, Input } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getVolumes, createVolume, deleteVolume } from '../../api';
 import { Volume, CreateVolumeBody } from '../../types';
 import StatusBadge from '../../components/StatusBadge';
@@ -14,6 +15,7 @@ function formatBytes(bytes: number): string {
 }
 
 export default function VolumesPage() {
+  const { t } = useTranslation();
   const [volumes, setVolumes] = useState<Volume[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
@@ -76,10 +78,10 @@ export default function VolumesPage() {
 
   const handleDelete = (uuid: string) => {
     Modal.confirm({
-      title: '确认删除',
-      content: `确定要删除卷 ${uuid} 吗？`,
-      okText: '确认',
-      cancelText: '取消',
+      title: t('volumes.modal.deleteTitle'),
+      content: t('volumes.modal.deleteContent', { uuid }),
+      okText: t('volumes.modal.confirm'),
+      cancelText: t('volumes.modal.cancel'),
       okButtonProps: { danger: true },
       onOk: async () => {
         await deleteVolume(uuid);
@@ -93,9 +95,9 @@ export default function VolumesPage() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Typography.Title level={4} style={{ margin: 0 }}>卷</Typography.Title>
+        <Typography.Title level={4} style={{ margin: 0 }}>{t('volumes.title')}</Typography.Title>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
-          创建卷
+          {t('volumes.actions.create')}
         </Button>
       </div>
 
@@ -107,32 +109,34 @@ export default function VolumesPage() {
           style: { cursor: 'pointer' },
         })}
         columns={[
-          { title: 'UUID', dataIndex: ['spec', 'uuid'], key: 'uuid', width: 280 },
+          { title: t('common.labels.uuid'), dataIndex: ['spec', 'uuid'], key: 'uuid', width: 280 },
           {
-            title: '状态',
+            title: t('volumes.columns.status'),
             dataIndex: ['state', 'status'],
             key: 'status',
             render: (s: string) => <StatusBadge status={s} />,
           },
           {
-            title: '大小',
+            title: t('volumes.columns.size'),
             dataIndex: ['state', 'size'],
             key: 'size',
             render: (v: number) => formatBytes(v || 0),
           },
           {
-            title: '副本数',
+            title: t('volumes.columns.replicas'),
             dataIndex: ['spec', 'replicas'],
             key: 'replicas',
           },
           {
-            title: '发布',
+            title: t('volumes.columns.published'),
             key: 'published',
             render: (_: unknown, record: Volume) =>
-              record.state.target ? <StatusBadge status="Online" text="已发布" /> : <StatusBadge status="Unknown" text="未发布" />,
+              record.state.target
+                ? <StatusBadge status="Online" text={t('volumes.values.published')} />
+                : <StatusBadge status="Unknown" text={t('volumes.values.unpublished')} />,
           },
           {
-            title: '操作',
+            title: t('volumes.columns.actions'),
             key: 'actions',
             render: (_: unknown, record: Volume) => (
               <Space>
@@ -142,7 +146,7 @@ export default function VolumesPage() {
                   danger
                   onClick={(e) => { e.stopPropagation(); handleDelete(record.spec.uuid); }}
                 >
-                  删除
+                  {t('volumes.actions.delete')}
                 </Button>
               </Space>
             ),
@@ -151,31 +155,37 @@ export default function VolumesPage() {
       />
 
       <Modal
-        title="创建卷"
+        title={t('volumes.createTitle')}
         open={createOpen}
         onOk={handleCreate}
         onCancel={() => { setCreateOpen(false); form.resetFields(); }}
         confirmLoading={creating}
-        okText="创建"
-        cancelText="取消"
+        okText={t('volumes.modal.create')}
+        cancelText={t('volumes.modal.cancel')}
       >
         <Form form={form} layout="vertical">
           <Form.Item
             name="size"
-            label="大小 (GiB)"
-            rules={[{ required: true, message: '请输入大小' }, { type: 'number', min: 1, message: '最小 1 GiB' }]}
+            label={t('volumes.form.size')}
+            rules={[
+              { required: true, message: t('volumes.form.validation.sizeRequired') },
+              { type: 'number', min: 1, message: t('volumes.form.validation.sizeMin') },
+            ]}
           >
             <InputNumber min={1} style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item
             name="replicas"
-            label="副本数"
-            rules={[{ required: true, message: '请输入副本数' }, { type: 'number', min: 1, max: 10, message: '1-10' }]}
+            label={t('volumes.form.replicas')}
+            rules={[
+              { required: true, message: t('volumes.form.validation.replicasRequired') },
+              { type: 'number', min: 1, max: 10, message: t('volumes.form.validation.replicasRange') },
+            ]}
           >
             <InputNumber min={1} max={10} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="labels" label="标签（可选）">
-            <Input placeholder="描述性标签" />
+          <Form.Item name="labels" label={t('volumes.form.labels')}>
+            <Input placeholder={t('volumes.form.labelsPlaceholder')} />
           </Form.Item>
         </Form>
       </Modal>

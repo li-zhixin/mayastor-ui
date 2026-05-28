@@ -6,6 +6,7 @@ import {
   HddOutlined,
   CopyOutlined,
 } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import { getClusterStats } from '../../api';
 import { ClusterStats } from '../../types';
 
@@ -17,9 +18,11 @@ function formatBytes(bytes: number): string {
 }
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState<ClusterStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const fetchErrorText = t('dashboard.fetchError');
 
   useEffect(() => {
     let cancelled = false;
@@ -28,19 +31,19 @@ export default function Dashboard() {
         const data = await getClusterStats();
         if (!cancelled) setStats(data);
       } catch (err: unknown) {
-        if (!cancelled) setError(err instanceof Error ? err.message : '获取数据失败');
+        if (!cancelled) setError(err instanceof Error ? err.message : fetchErrorText);
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
     fetch();
     return () => { cancelled = true; };
-  }, []);
+  }, [fetchErrorText]);
 
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 120 }}>
-        <Spin size="large" description="加载集群数据..." />
+        <Spin size="large" description={t('dashboard.loading')} />
       </div>
     );
   }
@@ -49,7 +52,7 @@ export default function Dashboard() {
     return (
       <div style={{ padding: 24 }}>
         <Typography.Text type="danger">
-          {error || '无法加载集群数据。请确认 REST API 服务（默认 http://localhost:8080）已启动。'}
+          {error || t('dashboard.emptyError')}
         </Typography.Text>
       </div>
     );
@@ -61,12 +64,12 @@ export default function Dashboard() {
 
   return (
     <div>
-      <Typography.Title level={4} style={{ marginBottom: 16 }}>集群概览</Typography.Title>
+      <Typography.Title level={4} style={{ marginBottom: 16 }}>{t('dashboard.title')}</Typography.Title>
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="节点"
+              title={t('dashboard.stats.nodes')}
               value={stats.nodesOnline}
               suffix={`/ ${stats.nodes}`}
               prefix={<ClusterOutlined />}
@@ -77,7 +80,7 @@ export default function Dashboard() {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="存储池"
+              title={t('dashboard.stats.pools')}
               value={stats.poolsOnline}
               suffix={`/ ${stats.pools}`}
               prefix={<DatabaseOutlined />}
@@ -88,7 +91,7 @@ export default function Dashboard() {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="卷"
+              title={t('dashboard.stats.volumes')}
               value={stats.volumesOnline}
               suffix={`/ ${stats.volumes}`}
               prefix={<HddOutlined />}
@@ -99,7 +102,7 @@ export default function Dashboard() {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="副本"
+              title={t('dashboard.stats.replicas')}
               value={stats.replicas}
               prefix={<CopyOutlined />}
             />
@@ -109,9 +112,9 @@ export default function Dashboard() {
 
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24} lg={12}>
-          <Card title="存储使用">
+          <Card title={t('dashboard.capacityCard')}>
             <Statistic
-              title="已用 / 总容量"
+              title={t('dashboard.usedCapacity')}
               value={`${formatBytes(stats.usedBytes)} / ${formatBytes(stats.capacityBytes)}`}
               suffix={`(${usedPct}%)`}
             />

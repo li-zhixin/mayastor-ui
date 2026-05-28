@@ -1,0 +1,26 @@
+export const nexuses = {
+  title: 'Nexus',
+  detailTitle: 'Nexus 详情',
+  childrenTitle: '子设备',
+  notFound: 'Nexus 未找到',
+  columns: {
+    uuid: 'UUID',
+    node: '节点',
+    status: '状态',
+    size: '大小',
+    children: '子设备',
+    rebuilds: '重建',
+    protocol: '协议',
+    uri: 'URI',
+    rebuildProgress: '重建进度',
+  },
+  fields: {
+    node: '节点',
+    name: '名称',
+    status: '状态',
+    size: '大小',
+    deviceUri: '设备 URI',
+    rebuilds: '重建任务',
+    share: '共享协议',
+  },
+};

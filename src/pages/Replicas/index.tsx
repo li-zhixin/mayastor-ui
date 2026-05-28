@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, Spin, Typography } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { getReplicas } from '../../api';
 import { Replica } from '../../types';
 
@@ -11,6 +12,7 @@ function formatBytes(bytes: number): string {
 }
 
 export default function ReplicasPage() {
+  const { t } = useTranslation();
   const [replicas, setReplicas] = useState<Replica[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,33 +29,33 @@ export default function ReplicasPage() {
 
   return (
     <div>
-      <Typography.Title level={4}>副本</Typography.Title>
+      <Typography.Title level={4}>{t('replicas.title')}</Typography.Title>
       <Table
         dataSource={replicas}
         rowKey="uuid"
         columns={[
-          { title: 'UUID', dataIndex: 'uuid', key: 'uuid', width: 280 },
-          { title: '节点', dataIndex: 'node', key: 'node' },
-          { title: '存储池', dataIndex: 'pool', key: 'pool' },
+          { title: t('common.labels.uuid'), dataIndex: 'uuid', key: 'uuid', width: 280 },
+          { title: t('replicas.columns.node'), dataIndex: 'node', key: 'node' },
+          { title: t('replicas.columns.pool'), dataIndex: 'pool', key: 'pool' },
           {
-            title: '大小',
+            title: t('replicas.columns.size'),
             dataIndex: 'size',
             key: 'size',
             render: (v: number) => formatBytes(v || 0),
           },
           {
-            title: '精简配置',
+            title: t('replicas.columns.thin'),
             dataIndex: 'thin',
             key: 'thin',
-            render: (v: boolean) => (v ? '是' : '否'),
+            render: (v: boolean) => (v ? t('replicas.values.yes') : t('replicas.values.no')),
           },
           {
-            title: '协议',
+            title: t('replicas.columns.share'),
             dataIndex: 'share',
             key: 'share',
-            render: (s: string) => (s === 'None' ? '未共享' : s),
+            render: (s: string) => (s === 'None' ? t('common.shared.notShared') : s),
           },
-          { title: 'URI', dataIndex: 'uri', key: 'uri', ellipsis: true },
+          { title: t('replicas.columns.uri'), dataIndex: 'uri', key: 'uri', ellipsis: true },
         ]}
       />
     </div>

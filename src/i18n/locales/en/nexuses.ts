@@ -1,0 +1,26 @@
+export const nexuses = {
+  title: 'Nexus',
+  detailTitle: 'Nexus Details',
+  childrenTitle: 'Children',
+  notFound: 'Nexus not found',
+  columns: {
+    uuid: 'UUID',
+    node: 'Node',
+    status: 'Status',
+    size: 'Size',
+    children: 'Children',
+    rebuilds: 'Rebuilds',
+    protocol: 'Protocol',
+    uri: 'URI',
+    rebuildProgress: 'Rebuild Progress',
+  },
+  fields: {
+    node: 'Node',
+    name: 'Name',
+    status: 'Status',
+    size: 'Size',
+    deviceUri: 'Device URI',
+    rebuilds: 'Rebuilds',
+    share: 'Share',
+  },
+};
