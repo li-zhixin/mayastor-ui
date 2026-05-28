@@ -58,7 +58,7 @@ export default function VolumeDetail() {
 
   const handlePublish = async () => {
     if (!id) return;
-    await publishVolume(id);
+    await publishVolume(id, { protocol: 'nvmf' });
     await fetchVolume();
   };
 

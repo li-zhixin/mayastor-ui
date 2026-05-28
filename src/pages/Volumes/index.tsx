@@ -7,6 +7,10 @@ import { getVolumes, createVolume, deleteVolume } from '../../api';
 import { Volume, CreateVolumeBody } from '../../types';
 import StatusBadge from '../../components/StatusBadge';
 
+function generateUuid() {
+  return crypto.randomUUID();
+}
+
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
   const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
@@ -63,9 +67,11 @@ export default function VolumesPage() {
         size: values.size * 1024 * 1024 * 1024, // GiB -> bytes
         replicas: values.replicas,
         policy: {},
+        thin: false,
+        encrypted: false,
         labels: values.labels ? { description: values.labels } : undefined,
       };
-      await createVolume(body);
+      await createVolume(generateUuid(), body);
       setCreateOpen(false);
       form.resetFields();
       await fetchVolumes();

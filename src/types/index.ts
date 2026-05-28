@@ -179,7 +179,21 @@ export interface CreateVolumeBody {
   size: number;
   replicas: number;
   policy: VolumePolicy;
+  topology?: VolumeTopology;
   labels?: Record<string, string>;
+  thin?: boolean;
+  max_snapshots?: number;
+  encrypted?: boolean;
+  cluster_size?: number;
+}
+
+export interface PublishVolumeBody {
+  protocol: 'nvmf';
+  node?: NodeId;
+  republish?: boolean;
+  reuse_existing?: boolean;
+  frontend_node?: string;
+  publish_context?: Record<string, string>;
 }
 
 export interface ReplicaTopology {

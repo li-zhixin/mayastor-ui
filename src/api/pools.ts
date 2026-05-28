@@ -1,5 +1,5 @@
 import { Pool, PoolDeviceUri } from '../types';
-import { apiGetList, apiGet, apiPost, apiDelete } from './client';
+import { apiGetList, apiGet, apiPut, apiDelete } from './client';
 
 export async function getPools(): Promise<Pool[]> {
   return apiGetList<Pool>('/v0/pools?max_entries=0');
@@ -14,13 +14,16 @@ export interface CreatePoolRequest {
   pool: string;
   disks: PoolDeviceUri[];
   labels?: Record<string, string>;
+  cluster_size?: number;
+  max_expansion?: string;
 }
 
 export async function createPool(params: CreatePoolRequest): Promise<Pool> {
-  return apiPost<Pool>(`/v0/nodes/${encodeURIComponent(params.node)}/pools`, {
-    pool: params.pool,
+  return apiPut<Pool>(`/v0/nodes/${encodeURIComponent(params.node)}/pools/${encodeURIComponent(params.pool)}`, {
     disks: params.disks,
     labels: params.labels,
+    cluster_size: params.cluster_size,
+    max_expansion: params.max_expansion,
   });
 }
 

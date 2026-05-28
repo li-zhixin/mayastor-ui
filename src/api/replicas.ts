@@ -1,5 +1,5 @@
 import { Replica, CreateReplicaBody } from '../types';
-import { apiGetList, apiGet, apiPost, apiDelete } from './client';
+import { apiGetList, apiGet, apiPut, apiDelete } from './client';
 
 export async function getReplicas(): Promise<Replica[]> {
   return apiGetList<Replica>('/v0/replicas?max_entries=0');
@@ -17,9 +17,9 @@ export interface CreateReplicaRequest {
 }
 
 export async function createReplica(params: CreateReplicaRequest): Promise<Replica> {
-  return apiPost<Replica>(
-    `/v0/nodes/${encodeURIComponent(params.node)}/pools/${encodeURIComponent(params.pool)}/replicas`,
-    { ...params.body, uuid: params.uuid },
+  return apiPut<Replica>(
+    `/v0/nodes/${encodeURIComponent(params.node)}/pools/${encodeURIComponent(params.pool)}/replicas/${encodeURIComponent(params.uuid)}`,
+    params.body,
   );
 }
 
